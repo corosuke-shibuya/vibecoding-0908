@@ -6,6 +6,61 @@
 </head>
 <body>
 <h1>習慣トラッカー</h1>
+<input id="habit-input" type="text">
+<button id="add-button">追加</button>
 <ul id="habit-list" style="border: 1px solid; min-height: 2em; list-style: none; margin: 0; padding: 0;"></ul>
+<script>
+var STORAGE_KEY = "habits";
+
+function loadHabits() {
+  try {
+    var raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHabits(habits) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(habits));
+}
+
+var habits = loadHabits();
+
+function render() {
+  var list = document.getElementById("habit-list");
+  list.innerHTML = "";
+  habits.forEach(function (habit, index) {
+    var li = document.createElement("li");
+
+    var checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = habit.checked;
+    checkbox.addEventListener("change", function () {
+      habits[index].checked = checkbox.checked;
+      saveHabits(habits);
+    });
+
+    var label = document.createElement("span");
+    label.textContent = habit.name;
+
+    li.appendChild(checkbox);
+    li.appendChild(label);
+    list.appendChild(li);
+  });
+}
+
+document.getElementById("add-button").addEventListener("click", function () {
+  var input = document.getElementById("habit-input");
+  var name = input.value.trim();
+  if (name === "") return;
+  habits.push({ name: name, checked: false });
+  saveHabits(habits);
+  render();
+  input.value = "";
+});
+
+render();
+</script>
 </body>
 </html>
